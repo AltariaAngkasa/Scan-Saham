@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bloomberg AI Terminal - Stock News & Sentiment Analysis</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <!-- Bloomberg Ticker Tape -->
+  <div class="ticker-tape">
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-item bullish">IHSG <span class="ticker-val">7,240.15</span> <span
+          class="ticker-change">+0.84%</span></div>
+      <div class="ticker-item bullish">BBCA <span class="ticker-val">10,250</span> <span
+          class="ticker-change">+1.48%</span></div>
+      <div class="ticker-item bearish">BBRI <span class="ticker-val">4,820</span> <span
+          class="ticker-change">-0.82%</span></div>
+      <div class="ticker-item bullish">TLKM <span class="ticker-val">3,690</span> <span
+          class="ticker-change">+0.54%</span></div>
+      <div class="ticker-item bearish">ASII <span class="ticker-val">4,980</span> <span
+          class="ticker-change">-1.19%</span></div>
+      <div class="ticker-item bearish">GOTO <span class="ticker-val">58</span> <span class="ticker-change">-3.33%</span>
+      </div>
+      <div class="ticker-item bullish">BMRI <span class="ticker-val">6,275</span> <span
+          class="ticker-change">+2.03%</span></div>
+      <div class="ticker-item neutral">BBNI <span class="ticker-val">4,750</span> <span
+          class="ticker-change">0.00%</span></div>
+      <div class="ticker-item bullish">UNVR <span class="ticker-val">2,890</span> <span
+          class="ticker-change">+1.76%</span></div>
+      <div class="ticker-item bullish">AMRT <span class="ticker-val">2,910</span> <span
+          class="ticker-change">+0.69%</span></div>
+    </div>
+  </div>
+
+  <!-- Terminal Header -->
+  <header class="terminal-header">
+    <div class="header-left">
+      <span class="terminal-logo">BLOOMBERG <span class="highlight-blue">INTELLIGENCE</span></span>
+      <div class="status-indicator">
+        <span class="led green"></span>
+        <span class="status-text">ONLINE</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="search-container">
+        <span class="prompt-symbol">&gt;</span>
+        <input type="text" id="tickerSearch" placeholder="Cari Kode Saham (contoh: BBCA, TLKM, BBRI)..."
+          autocomplete="off">
+        <button id="searchBtn" class="search-btn">RUN ANALYTICS</button>
+      </div>
+      <div class="quick-tickers">
+        <button class="quick-ticker-btn" data-ticker="BBCA">BBCA</button>
+        <button class="quick-ticker-btn" data-ticker="BBRI">BBRI</button>
+        <button class="quick-ticker-btn" data-ticker="TLKM">TLKM</button>
+        <button class="quick-ticker-btn" data-ticker="BMRI">BMRI</button>
+        <button class="quick-ticker-btn" data-ticker="ASII">ASII</button>
+        <button class="quick-ticker-btn" data-ticker="GOTO">GOTO</button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="time-display" id="timeDisplay">14:00:00</div>
+      <button id="settingsBtn" class="icon-btn" title="Pengaturan API Key">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+          </path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Terminal Workspace -->
+  <main class="terminal-workspace">
+
+    <!-- LEFT PANEL: NEWS WIRE -->
+    <section class="panel news-wire-panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="amber-text">NWS</span> NEWS WIRE [F8]</span>
+        <span class="panel-subtitle" id="newsCount">0 ARTICLES</span>
+      </div>
+      <div class="panel-content">
+        <!-- Loader -->
+        <div class="loader-container" id="newsLoader">
+          <div class="spinner"></div>
+          <span>Mencari berita Google News...</span>
+        </div>
+        <!-- Article list -->
+        <div class="news-list" id="newsList" style="display: none;">
+          <!-- Items populated by JS -->
+        </div>
+        <div class="empty-state" id="newsEmpty">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2">
+            </path>
+            <path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"></path>
+          </svg>
+          <p>Masukkan ticker saham di atas dan tekan RUN ANALYTICS</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER PANEL: CHART & PREVIEW -->
+    <section class="panel chart-and-preview-panel">
+      <!-- Upper Section: Chart -->
+      <div class="chart-section">
+        <div class="panel-header">
+          <span class="panel-title"><span class="blue-text">GP</span> CHART ANALYSIS [F9] - <span id="chartTicker">BBCA</span></span>
+          <span class="panel-subtitle">LIVE HISTORICAL PERFORMANCE (MOCK)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="tickerChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Lower Section: Reader -->
+      <div class="reader-section">
+        <div class="panel-header">
+          <span class="panel-title"><span class="green-text">DES</span> ARTICLE VIEWER [F10]</span>
+        </div>
+        <div class="reader-content" id="readerContent">
+          <div class="reader-empty">
+            <p>Pilih salah satu berita di panel kiri untuk melihat ringkasan & link lengkap.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: GEMINI AI ANALYSIS -->
+    <section class="panel ai-analysis-panel">
+      <div class="panel-header">
+        <span class="panel-title"><span class="purple-text">BI</span> GEMINI FUNDAMENTAL INTELLIGENCE [F11]</span>
+        <span class="panel-subtitle" id="analysisStatus">STANDBY</span>
+      </div>
+      <div class="panel-content">
+        <!-- AI Loader -->
+        <div class="loader-container" id="aiLoader" style="display: none;">
+          <div class="pulse-ring"></div>
+          <span class="loading-main-text">Gemini AI Sedang Menganalisis...</span>
+          <div class="terminal-logs" id="terminalLogs">
+            <!-- Simulated logs -->
+          </div>
+        </div>
+
+        <!-- AI Content Result -->
+        <div class="ai-result-content" id="aiResult" style="display: none;">
+
+          <!-- Sentiment Gauge Widget -->
+          <div class="widget sentiment-widget">
+            <div class="widget-header">SENTIMENT & CONSENSUS OUTLOOK</div>
+            <div class="sentiment-box-container">
+              <div class="sentiment-badge-wrapper">
+                <div class="sentiment-indicator-badge" id="sentimentBadge">BULLISH</div>
+                <div class="sentiment-score-text" id="sentimentScoreText">SCORE: +75</div>
+              </div>
+              <div class="sentiment-gauge-track">
+                <div class="sentiment-gauge-needle" id="sentimentNeedle"></div>
+                <div class="sentiment-gauge-labels">
+                  <span>BEARISH</span>
+                  <span>NEUTRAL</span>
+                  <span>BULLISH</span>
+                </div>
+              </div>
+              <div class="confidence-badge" id="confidenceValue">85% Confidence</div>
+            </div>
+          </div>
+
+          <!-- Executive Summary Widget -->
+          <div class="widget summary-widget">
+            <div class="widget-header">ANALYST EXECUTIVE SUMMARY</div>
+            <div class="terminal-text-box">
+              <p id="executiveSummary" class="typing-text">Sedang merangkum...</p>
+            </div>
+          </div>
+
+          <!-- Bullet Catalysts Widget -->
+          <div class="widget catalysts-widget">
+            <div class="widget-header">CORE FUNDAMENTAL CATALYSTS</div>
+            <ul class="catalyst-list" id="catalystList">
+              <!-- JS generates -->
+            </ul>
+          </div>
+
+          <!-- Price Target Prediction Widget -->
+          <div class="widget target-widget">
+            <div class="widget-header">ESTIMATED PRICE DIRECTION IMPACT</div>
+            <div class="target-grid">
+              <div class="target-card direction-card" id="directionCard">
+                <span class="target-label">PRICE MOVEMENT</span>
+                <span class="target-value" id="priceDirection">UP</span>
+              </div>
+              <div class="target-card timeline-card">
+                <span class="target-label">OUTLOOK TIMELINE</span>
+                <span class="target-value" id="priceTimeline">Short-term (1-2w)</span>
+              </div>
+              <div class="target-card range-card">
+                <span class="target-label">ESTIMATED RANGE</span>
+                <span class="target-value" id="priceRange">+2.5% to +8.0%</span>
+              </div>
+            </div>
+            <div class="target-explanation-box">
+              <span class="explanation-title">RATIONALE:</span>
+              <p id="directionExplanation">Mengambil penjelasan...</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Initial Empty State -->
+        <div class="empty-state" id="aiEmpty">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41">
+            </path>
+            <circle cx="12" cy="12" r="4"></circle>
+          </svg>
+          <p>AI akan otomatis menganalisis setelah berita berhasil dimuat.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Terminal Footer Bar -->
+  <footer class="terminal-footer">
+    <div class="footer-left">
+      <span class="footer-key">F1-F12</span> Help & Navigation | <span class="footer-key">Esc</span> Reset Search
+    </div>
+    <div class="footer-center">
+      <span class="footer-credit">Bloomberg AI Terminal v1.0.0</span>
+    </div>
+    <div class="footer-right">
+      <span>SERVER LATENCY: <span id="pingValue" class="highlight-green">-- ms</span></span>
+      <span class="vertical-divider">|</span>
+      <span>AI STATUS: <span id="aiKeyStatus" class="highlight-red">NO API KEY</span></span>
+    </div>
+  </footer>
+
+  <!-- Settings Modal for API Key -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>TERM SETTINGS: GOOGLE AI STUDIO API</h3>
+        <button class="close-modal" id="closeSettingsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-desc">Masukkan API Key Google AI Studio Anda di bawah. API Key disimpan secara lokal di
+          browser Anda (Local Storage) untuk melakukan request ke model Gemini.</p>
+
+        <div class="form-group">
+          <label for="geminiApiKey">GEMINI API KEY (API_GEMINI)</label>
+          <input type="password" id="geminiApiKey" placeholder="AIzaSy..." autocomplete="off">
+          <small class="help-text">Jika dikosongkan, server akan menggunakan API_GEMINI yang terkonfigurasi di file
+            <code>.env</code> server.</small>
+        </div>
+
+        <div class="key-status-box" id="modalKeyStatusBox">
+          <span class="status-title">Status API Key Saat Ini:</span>
+          <span class="status-desc" id="currentKeyStatus">Belum diset di browser (Menggunakan fallback server)</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="clearKeyBtn">Hapus Key</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">Simpan Pengaturan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client JavaScript -->
+  <script src="script.js"></script>
+</body>
+
+</html>
